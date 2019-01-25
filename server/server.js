@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 // Cargamos las configuraciones del servidor
 require('./config/config')
@@ -14,24 +15,15 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+app.use(require('./routes/usuario.js'));
+
 app.get('/', (req, res) => {
     res.send('Hi')
 })
 
-app.post('/usuario', (req, res) => {
-    let body = req.body; // Devuelve los datos procesados del bodyParser que haya enviado mediante un payload
-
-    res.json({
-        persona: body
-    })
-})
-
-app.put('/usuario/:id', (req, res) => {
-    let id = req.params.id;
-
-    res.json({
-        id
-    })
+mongoose.connect(process.env.URLDB, (err, res) => {
+    if (err) throw err;
+    console.log('Base de datos ONLINE');
 })
 
 app.listen(process.env.PORT, () => {
