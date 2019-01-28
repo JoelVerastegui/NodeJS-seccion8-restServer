@@ -3,8 +3,18 @@ const app = express();
 const Usuario = require('../models/usuario');
 const bcrypt = require('bcryptjs');
 const underscore = require('underscore');
+const { verificarToken, verificarAdmin } = require('../middlewares/auth');
 
-app.get('/usuario', (req, res) => {
+
+// El segundo parámetro del app.get es el middleware
+// que se usará al realizar esa petición.
+// Se importa el contenido de middlewares/auth.js en vez
+// de ejecutar la función, es por ello que no se usa '()'
+// El código importado se ejecutará al realizar la petición get.
+// El middleware se ejecutará antes de realizar el callback
+
+app.get('/usuario', verificarToken, (req, res) => {
+
     let desde = req.query.desde || 0;
     desde = Number(desde);
 
@@ -26,13 +36,17 @@ app.get('/usuario', (req, res) => {
                 res.json({
                     ok: true,
                     usuarios,
-                    cantidad: count
+                    cantidad: count,
+                    autor: req.usuario.nombre
                 })
             })
         })
 })
 
-app.post('/usuario', (req, res) => {
+app.post('/usuario', [verificarToken, verificarAdmin], (req, res) => {
+
+    let autor = req.usuario;
+
     let body = req.body; // Devuelve los datos procesados del bodyParser que haya enviado mediante un payload
 
     let usuario = new Usuario({
@@ -53,13 +67,17 @@ app.post('/usuario', (req, res) => {
 
         res.json({
             ok: true,
-            usuario: usuarioDB
+            usuario: usuarioDB,
+            autor: autor.nombre
         })
 
     })
 })
 
-app.put('/usuario/:id', (req, res) => {
+app.put('/usuario/:id', [verificarToken, verificarAdmin], (req, res) => {
+
+    let autor = req.usuario;
+
     let id = req.params.id;
 
     let body = underscore.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
@@ -74,13 +92,17 @@ app.put('/usuario/:id', (req, res) => {
 
         res.json({
             ok: true,
-            usuario: usuarioDB
+            usuario: usuarioDB,
+            autor: autor.nombre
         })
 
     })
 })
 
-app.delete('/usuario/:id', (req, res) => {
+app.delete('/usuario/:id', [verificarToken, verificarAdmin], (req, res) => {
+
+    let autor = req.usuario;
+
     let id = req.params.id;
     /*
     Usuario.findByIdAndDelete(id, (err, usuarioEliminado) => {
@@ -126,7 +148,8 @@ app.delete('/usuario/:id', (req, res) => {
 
         res.json({
             ok: true,
-            usuario: usuarioActualizado
+            usuario: usuarioActualizado,
+            autor: autor.nombre
         })
     })
 })

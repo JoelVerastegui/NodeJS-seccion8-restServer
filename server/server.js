@@ -15,7 +15,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
-app.use(require('./routes/usuario.js'));
+// Configuración global de rutas
+app.use(require('./routes/index'));
 
 app.get('/', (req, res) => {
     res.send('Hi')
