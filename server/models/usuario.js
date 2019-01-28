@@ -11,7 +11,7 @@ let usuarioSchema = new Schema({
     email: {
         type: String,
         required: [true, 'Ingrese un correo válido'],
-        unique: true
+        unique: true // Si es true, no permitirá crear usuarios con emails iguales ni modificar el email del mismo
     },
     password: {
         type: String,
